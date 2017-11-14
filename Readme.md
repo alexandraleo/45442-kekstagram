@@ -1,7 +1,7 @@
 # Личный проект «Кекстаграм» [![Build status][travis-image]][travis-url]
 
 * Студент: [Александра Леонова](https://up.htmlacademy.ru/javascript/11/user/45442).
-* Наставник: `Неизвестно`.
+* Наставник: [Саша Ивашкин](https://htmlacademy.ru/profile/id7280).
 
 ---
 
