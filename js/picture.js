@@ -15,13 +15,36 @@ var getRandomNumber = function (min, max) {
   return Math.floor(min + Math.random() * (max + 1 - min));
 };
 
+var commentsQuantity = getRandomNumber(1, 2);
+
 var Description = function (i) {
   var COMMENTS = ['Всё отлично!', 'В целом всё неплохо. Но не всё.',
-    'Когда вы делаете фотографию, хорошо бы убирать палец из кадра. В конце концов это просто непрофессионально.', 'Моя бабушка случайно чихнула с фотоаппаратом в руках и у неё получилась фотография лучше.', 'Я поскользнулся на банановой кожуре и уронил фотоаппарат на кота и у меня получилась фотография лучше.', 'Лица у людей на фотке перекошены, как будто их избивают. Как можно было поймать такой неудачный момент?!'];
+    'Когда вы делаете фотографию, хорошо бы убирать палец из кадра. В конце концов это просто непрофессионально.',
+    'Моя бабушка случайно чихнула с фотоаппаратом в руках и у неё получилась фотография лучше.',
+    'Я поскользнулся на банановой кожуре и уронил фотоаппарат на кота и у меня получилась фотография лучше.',
+    'Лица у людей на фотке перекошены, как будто их избивают. Как можно было поймать такой неудачный момент?!'];
+
+  var textComments = function() {
+    var copy = COMMENTS;
+    if (commentsQuantity == 1) {
+      return COMMENTS[getRandom(COMMENTS)];
+    } else {
+      var copy = COMMENTS;
+      var complexComment = [];
+      for (var i = 0; i < commentsQuantity; i++) {
+        var part = copy[getRandomNumber(0, copy.length - 1)];
+        complexComment.push(part);
+        copy.splice(copy.indexOf(part), 1);
+      }
+      return complexComment.join(' ');
+  }
+}
+// textComments();
 
   this.url = 'photos/' + i + '.jpg';
   this.likes = getRandomNumber(15, 200);
-  this.comments = getRandomNumber(0, 55);
+  this.comments = commentsQuantity;
+
 };
 
 var rateImage = function (description) {
