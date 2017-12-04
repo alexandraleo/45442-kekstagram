@@ -1,7 +1,6 @@
 'use strict';
 
 var galleryWindow = document.querySelector('.gallery-overlay');
-galleryWindow.classList.remove('hidden');
 var gallery = document.querySelector('.pictures');
 var galleryTemplate = document.querySelector('#picture-template').content;
 var fragment = document.createDocumentFragment();
@@ -15,52 +14,49 @@ var getRandomNumber = function (min, max) {
   return Math.floor(min + Math.random() * (max + 1 - min));
 };
 
-var commentsQuantity = getRandomNumber(1, 2);
-
 var textComments = function () {
   var COMMENTS = ['Всё отлично!', 'В целом всё неплохо. Но не всё.',
     'Когда вы делаете фотографию, хорошо бы убирать палец из кадра. В конце концов это просто непрофессионально.',
     'Моя бабушка случайно чихнула с фотоаппаратом в руках и у неё получилась фотография лучше.',
     'Я поскользнулся на банановой кожуре и уронил фотоаппарат на кота и у меня получилась фотография лучше.',
     'Лица у людей на фотке перекошены, как будто их избивают. Как можно было поймать такой неудачный момент?!'];
-  var copy = COMMENTS;
-  if (commentsQuantity === 1) {
-    return COMMENTS[getRandom(COMMENTS)];
-  } else {
-    var complexComment = [];
-    for (i = 0; i < commentsQuantity; i++) {
-      var part = copy[getRandomNumber(0, copy.length - 1)];
-      complexComment.push(part);
-      copy.splice(copy.indexOf(part), 1);
-    }
-    return complexComment.join(' ');
+
+  var commentsQuantity = getRandomNumber(1, 2);
+  var complexComment = [];
+  var commentsVariants = COMMENTS.slice();
+
+  for (var i = 0; i < commentsQuantity; i++) {
+    var commentIndex = getRandomNumber(0, COMMENTS.length - 1);
+    complexComment[i] = commentsVariants[commentIndex];
+    commentsVariants.splice(commentsVariants.indexOf(complexComment[i]), 1);
   }
+  return complexComment;
 };
 
-var Description = function (i) {
+var Photo = function (i) {
   this.url = 'photos/' + i + '.jpg';
   this.likes = getRandomNumber(15, 200);
-  this.comments = commentsQuantity;
+  this.comments = textComments();
 };
 
-var rateImage = function (description) {
-  var imageNode = galleryTemplate.cloneNode(true);
+var takePhoto = function (photo) {
+  var photoNode = galleryTemplate.cloneNode(true);
 
-  imageNode.querySelector('.picture').querySelector('img').src = description.url;
-  imageNode.querySelector('.picture-likes').textContent = description.likes;
-  imageNode.querySelector('.picture-comments').textContent = description.comments;
+  photoNode.querySelector('.picture').querySelector('img').src = photo.url;
+  photoNode.querySelector('.picture-likes').textContent = photo.likes;
+  photoNode.querySelector('.picture-comments').textContent = photo.comments.length;
 
-  return imageNode;
+  return photoNode;
 };
 
-textComments();
 
 for (var i = 1; i <= picturesCount; i++) {
-  var description = new Description(i);
-  fragment.appendChild(rateImage(description));
+  var photo = new Photo(i);
+  fragment.appendChild(takePhoto(photo));
 }
 
+galleryWindow.querySelector('img').src = photo.url;
+galleryWindow.querySelector('.likes-count').textContent = photo.likes;
+galleryWindow.querySelector('.comments-count').textContent = photo.comments.length;
+galleryWindow.classList.remove('hidden');
 gallery.appendChild(fragment);
-galleryWindow.querySelector('.gallery-overlay-image').src = description.url;
-galleryWindow.querySelector('.likes-count').textContent = description.likes;
-galleryWindow.querySelector('.comments-count').textContent = description.comments;
