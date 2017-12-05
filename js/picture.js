@@ -4,11 +4,7 @@ var galleryWindow = document.querySelector('.gallery-overlay');
 var gallery = document.querySelector('.pictures');
 var galleryTemplate = document.querySelector('#picture-template').content;
 var fragment = document.createDocumentFragment();
-var picturesCount = 25;
-
-var getRandom = function (array) {
-  return Math.floor(Math.random() * array.length);
-};
+var photosCount = 25;
 
 var getRandomNumber = function (min, max) {
   return Math.floor(min + Math.random() * (max + 1 - min));
@@ -33,11 +29,20 @@ var textComments = function () {
   return complexComment;
 };
 
-var Photo = function (i) {
-  this.url = 'photos/' + i + '.jpg';
-  this.likes = getRandomNumber(15, 200);
-  this.comments = textComments();
+var photosInfo = function () {
+  var photos = [];
+  for (var i = 0; i < photosCount; i++) {
+    var photo = {
+      url: 'photos/' + (i + 1) + '.jpg',
+      likes: getRandomNumber(15, 200),
+      comments: textComments()
+    };
+    photos[i] = photo;
+  }
+  return photos;
 };
+
+var photos = photosInfo(photosCount);
 
 var takePhoto = function (photo) {
   var photoNode = galleryTemplate.cloneNode(true);
@@ -49,14 +54,20 @@ var takePhoto = function (photo) {
   return photoNode;
 };
 
+var galleryOverlay = function (i) {
+  galleryWindow.querySelector('img').src = photos[i].url;
+  galleryWindow.querySelector('.likes-count').textContent = photos[i].likes;
+  galleryWindow.querySelector('.comments-count').textContent = photos[i].comments.length;
+};
 
-for (var i = 1; i <= picturesCount; i++) {
-  var photo = new Photo(i);
-  fragment.appendChild(takePhoto(photo));
-}
+var createGallery = function () {
+  for (var i = 0; i < photosCount; i++) {
+    fragment.appendChild(takePhoto(photos[i]));
+  }
+  return fragment;
+};
 
-galleryWindow.querySelector('img').src = photo.url;
-galleryWindow.querySelector('.likes-count').textContent = photo.likes;
-galleryWindow.querySelector('.comments-count').textContent = photo.comments.length;
-galleryWindow.classList.remove('hidden');
+createGallery();
+galleryOverlay(0);
 gallery.appendChild(fragment);
+galleryWindow.classList.remove('hidden');
