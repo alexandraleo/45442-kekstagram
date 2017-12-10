@@ -72,31 +72,27 @@ var galleryChildren = gallery.children;
 var pictures = document.querySelectorAll('.picture');
 var pictureCloseIcon = document.querySelector('.gallery-overlay-close');
 
-var galleryOverlay = function (i) {
-  galleryWindow.querySelector('img').src = photos[i].url;
-  galleryWindow.querySelector('.likes-count').textContent = photos[i].likes;
-  galleryWindow.querySelector('.comments-count').textContent = photos[i].comments.length;
+var galleryOverlay = function (photo) {
+  galleryWindow.querySelector('img').src = photo.url;
+  galleryWindow.querySelector('.likes-count').textContent = photo.likes;
+  galleryWindow.querySelector('.comments-count').textContent = photo.comments.length;
 };
 
-var onWindowEscPress = function (event) {
-  if (event.keyCode === ESC_KEY) {
+var onWindowEscPress = function (evt) {
+  if (evt.keyCode === ESC_KEY) {
     closePicture();
   }
 };
 
-var openPicture = function () {
-  event.preventDefault();
-  pictureCloseIcon.tabIndex = 0;
+var openPicture = function (evt) {
+  evt.preventDefault();
   galleryWindow.classList.remove('hidden');
   document.addEventListener('keydown', onWindowEscPress);
-  galleryOverlay(getChildIndex(event));
+  galleryOverlay(photos[getChildIndex(event)]);
 };
 
-var getChildIndex = function (event) {
-  var clickedPhoto = event.target;
-  if (event.type === 'click') {
-    clickedPhoto = event.target.parentNode;
-  }
+var getChildIndex = function (evt) {
+  var clickedPhoto = evt.currentTarget;
 
   for (var i = 0; i < galleryChildren.length; i++) {
     if (galleryChildren[i] === clickedPhoto) {
@@ -110,14 +106,8 @@ var closePicture = function () {
   galleryWindow.classList.add('hidden');
 };
 
-var onEnterPressOpen = function (event) {
-  if (event.keyCode === ENTER_KEY) {
-    openPicture();
-  }
-};
-
-var onEnterPressClose = function (event) {
-  if (event.keyCode === ENTER_KEY) {
+var onEnterPressClose = function (evt) {
+  if (evt.keyCode === ENTER_KEY) {
     closePicture();
   }
 };
@@ -125,7 +115,6 @@ var onEnterPressClose = function (event) {
 for (var i = 0; i < pictures.length; i++) {
   var picture = pictures[i];
   picture.addEventListener('click', openPicture);
-  picture.addEventListener('keydown', onEnterPressOpen);
 }
 
 pictureCloseIcon.addEventListener('click', closePicture);
