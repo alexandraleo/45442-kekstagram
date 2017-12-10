@@ -1,6 +1,5 @@
 'use strict';
 
-var galleryWindow = document.querySelector('.gallery-overlay');
 var gallery = document.querySelector('.pictures');
 var galleryTemplate = document.querySelector('#picture-template').content;
 var fragment = document.createDocumentFragment();
@@ -54,11 +53,6 @@ var takePhoto = function (photo) {
   return photoNode;
 };
 
-var galleryOverlay = function (i) {
-  galleryWindow.querySelector('img').src = photos[i].url;
-  galleryWindow.querySelector('.likes-count').textContent = photos[i].likes;
-  galleryWindow.querySelector('.comments-count').textContent = photos[i].comments.length;
-};
 
 var createGallery = function () {
   for (var i = 0; i < photosCount; i++) {
@@ -68,6 +62,60 @@ var createGallery = function () {
 };
 
 createGallery();
-galleryOverlay(0);
 gallery.appendChild(fragment);
-galleryWindow.classList.remove('hidden');
+
+// Показываем большую картинку
+var ESC_KEY = 27;
+var ENTER_KEY = 13;
+var galleryWindow = document.querySelector('.gallery-overlay');
+var galleryChildren = gallery.children;
+var pictures = document.querySelectorAll('.picture');
+var pictureCloseIcon = document.querySelector('.gallery-overlay-close');
+
+var galleryOverlay = function (photo) {
+  galleryWindow.querySelector('img').src = photo.url;
+  galleryWindow.querySelector('.likes-count').textContent = photo.likes;
+  galleryWindow.querySelector('.comments-count').textContent = photo.comments.length;
+};
+
+var onWindowEscPress = function (evt) {
+  if (evt.keyCode === ESC_KEY) {
+    closePicture();
+  }
+};
+
+var openPicture = function (evt) {
+  evt.preventDefault();
+  galleryWindow.classList.remove('hidden');
+  document.addEventListener('keydown', onWindowEscPress);
+  galleryOverlay(photos[getChildIndex(event)]);
+};
+
+var getChildIndex = function (evt) {
+  var clickedPhoto = evt.currentTarget;
+
+  for (var i = 0; i < galleryChildren.length; i++) {
+    if (galleryChildren[i] === clickedPhoto) {
+      break;
+    }
+  }
+  return i;
+};
+
+var closePicture = function () {
+  galleryWindow.classList.add('hidden');
+};
+
+var onEnterPressClose = function (evt) {
+  if (evt.keyCode === ENTER_KEY) {
+    closePicture();
+  }
+};
+
+for (var i = 0; i < pictures.length; i++) {
+  var picture = pictures[i];
+  picture.addEventListener('click', openPicture);
+}
+
+pictureCloseIcon.addEventListener('click', closePicture);
+pictureCloseIcon.addEventListener('keydown', onEnterPressClose);
