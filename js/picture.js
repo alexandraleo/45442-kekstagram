@@ -127,7 +127,13 @@ var uploadInput = document.getElementById('upload-file');
 var uploadOverlay = uploadForm.querySelector('.upload-overlay');
 var uploadFormClose = uploadOverlay.querySelector('.upload-form-cancel');
 var uploadComment = uploadOverlay.querySelector('.upload-form-description');
-var uploadResize = uploadOverlay.querySelector('.upload-resize-controls-value');
+var uploadEffects = uploadOverlay.querySelector('.upload-effect-controls');
+var picturePreview = uploadOverlay.querySelector('.effect-image-preview');
+var uploadResize = uploadOverlay.querySelector('.upload-resize-controls');
+var resizeDecButton = uploadResize.querySelector('.upload-resize-controls-button-dec');
+var resizeIncButton = uploadResize.querySelector('.upload-resize-controls-button-inc');
+var resizeInput = uploadResize.querySelector('.upload-resize-controls-value');
+
 
 var onClickOpenForm = function () {
   // evt.preventDefault();
@@ -141,6 +147,25 @@ var onClickCloseForm = function () {
 var onEscCloseForm = function (evt) {
   if (evt.keyCode === ESC_KEY) {
     uploadOverlay.classList.add('hidden');
+  }
+};
+
+var effectName = function (nameToChange) {
+  var newClassName = nameToChange.slice(7);
+  picturePreview.classList.add(newClassName);
+};
+
+var onClickEffect = function (event) {
+  var target = event.target;
+  var newClass;
+  while (target !== uploadEffects) {
+    if (target.type === 'radio') {
+      picturePreview.className = 'effect-image-preview';
+      newClass = target.id;
+      effectName(newClass);
+      return;
+    }
+    target = target.parentNode;
   }
 };
 
@@ -161,6 +186,40 @@ uploadComment.addEventListener('invalid', function () {
     uploadComment.setCustomValidity('');
   }
 });
-// Doesn`t work.
+
+uploadEffects.addEventListener('click', onClickEffect);
+
+// Ресайз
+var resizeStep = 25;
+var resizeMin = 25;
+var resizeMax = 100;
+
+var resizeValue = +resizeInput.value.slice(0, -1);
+
+var decreasePicture = function () {
+  if (resizeValue - resizeStep > resizeMin) {
+    resizeValue -= resizeStep;
+  } else {
+    resizeValue = resizeMin;
+  }
+  resizePicture();
+};
+
+var increasePicture = function () {
+  if (resizeMax > resizeValue + resizeStep) {
+    resizeValue += resizeStep;
+  } else {
+    resizeValue = resizeMax;
+  }
+  resizePicture();
+};
+
+var resizePicture = function () {
+  resizeInput.value = resizeValue + '%';
+  picturePreview.style = 'transform: scale(' + resizeValue / 100 + ');';
+};
+
+resizeDecButton.addEventListener('click', decreasePicture);
+resizeIncButton.addEventListener('click', increasePicture);
 
 
