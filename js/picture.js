@@ -119,3 +119,48 @@ for (var i = 0; i < pictures.length; i++) {
 
 pictureCloseIcon.addEventListener('click', closePicture);
 pictureCloseIcon.addEventListener('keydown', onEnterPressClose);
+
+// Формы кадрирования и отправки
+
+var uploadForm = document.getElementById('upload-select-image');
+var uploadInput = document.getElementById('upload-file');
+var uploadOverlay = uploadForm.querySelector('.upload-overlay');
+var uploadFormClose = uploadOverlay.querySelector('.upload-form-cancel');
+var uploadComment = uploadOverlay.querySelector('.upload-form-description');
+var uploadResize = uploadOverlay.querySelector('.upload-resize-controls-value');
+
+var onClickOpenForm = function () {
+  // evt.preventDefault();
+  uploadOverlay.classList.remove('hidden');
+};
+
+var onClickCloseForm = function () {
+  uploadOverlay.classList.add('hidden');
+};
+
+var onEscCloseForm = function (evt) {
+  if (evt.keyCode === ESC_KEY) {
+    uploadOverlay.classList.add('hidden');
+  }
+};
+
+uploadInput.addEventListener('change', onClickOpenForm);
+uploadFormClose.addEventListener('click', onClickCloseForm);
+document.addEventListener('keydown', onEscCloseForm);
+uploadComment.addEventListener('focus', function () {
+  document.removeEventListener('keydown', onEscCloseForm);
+});
+uploadComment.addEventListener('blur', function () {
+  document.addEventListener('keydown', onEscCloseForm);
+});
+
+uploadComment.addEventListener('invalid', function () {
+  if (uploadComment.validity.tooLong) {
+    uploadComment.setCustomValidity('Комментарий не должен содержать больше 140 символов');
+  } else {
+    uploadComment.setCustomValidity('');
+  }
+});
+// Doesn`t work.
+
+
