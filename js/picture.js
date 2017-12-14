@@ -136,17 +136,25 @@ var resizeInput = uploadResize.querySelector('.upload-resize-controls-value');
 
 var onClickOpenForm = function () {
   uploadOverlay.classList.remove('hidden');
-  document.querySelector('.upload-image').classList.add('hidden');
+  document.addEventListener('keydown', onEscCloseForm);
 };
 
 var onClickCloseForm = function () {
+  onCloseReset();
   uploadOverlay.classList.add('hidden');
-  document.querySelector('.upload-image').classList.remove('hidden');
+};
+
+var onCloseReset = function () {
+  picturePreview.className = 'effect-image-preview';
+  uploadHashtags.style.borderColor = 'transparent';
+  uploadComment.style.borderColor = 'transparent';
+  picturePreview.style = 'transform: scale(1);';
+  resizeValue = resizeMax;
 };
 
 var onEscCloseForm = function (evt) {
   if (evt.keyCode === ESC_KEY) {
-    onClickCloseForm();
+    uploadFormClose.click();
   }
 };
 
@@ -158,9 +166,9 @@ var effectName = function (nameToChange) {
 var onClickEffect = function (event) {
   var target = event.target;
   var newClass;
+  picturePreview.className = 'effect-image-preview';
   while (target !== uploadEffects) {
     if (target.type === 'radio') {
-      picturePreview.className = 'effect-image-preview';
       newClass = target.id;
       effectName(newClass);
       return;
@@ -171,7 +179,6 @@ var onClickEffect = function (event) {
 
 uploadInput.addEventListener('change', onClickOpenForm);
 uploadFormClose.addEventListener('click', onClickCloseForm);
-document.addEventListener('keydown', onEscCloseForm);
 uploadComment.addEventListener('focus', function () {
   document.removeEventListener('keydown', onEscCloseForm);
 });
@@ -228,12 +235,16 @@ var addBorder = function (input) {
 };
 
 var removeBorder = function (input) {
-  input.style.borderColor = 'blue';
+  input.style.borderColor = 'transparent';
 };
 
 var hashtagsValidityCheck = function () {
   var hashtags = uploadHashtags.value.trim().toLowerCase().split(' ');
-
+  if (uploadHashtags.value.length === 0) {
+    uploadHashtags.setCustomValidity('');
+    removeBorder(uploadHashtags);
+    return true;
+  }
   for (i = 0; i < hashtags.length; i++) {
     if (hashtags[i].length > MAX_HASHTAG_LENGTH) {
       uploadHashtags.setCustomValidity('Максимум 5 хэштэгов по 20 символов');
@@ -272,5 +283,4 @@ var commentValidityCheck = function () {
 
 uploadComment.addEventListener('input', commentValidityCheck);
 uploadHashtags.addEventListener('input', hashtagsValidityCheck);
-
 
