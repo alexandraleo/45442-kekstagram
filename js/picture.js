@@ -142,6 +142,7 @@ var onClickOpenForm = function () {
 var onClickCloseForm = function () {
   onCloseReset();
   uploadOverlay.classList.add('hidden');
+  document.removeEventListener('keydown', onEscCloseForm);
 };
 
 var onCloseReset = function () {
@@ -149,7 +150,7 @@ var onCloseReset = function () {
   uploadHashtags.style.borderColor = 'transparent';
   uploadComment.style.borderColor = 'transparent';
   picturePreview.style = 'transform: scale(1);';
-  resizeValue = resizeMax;
+  resizeInput.value = '100%';
 };
 
 var onEscCloseForm = function (evt) {
@@ -159,7 +160,7 @@ var onEscCloseForm = function (evt) {
 };
 
 var effectName = function (nameToChange) {
-  var newClassName = nameToChange.slice(7);
+  var newClassName = nameToChange.replace('upload-', '');
   picturePreview.classList.add(newClassName);
 };
 
@@ -193,34 +194,27 @@ var resizeStep = 25;
 var resizeMin = 25;
 var resizeMax = 100;
 
-var resizeValue = +resizeInput.value.slice(0, -1);
+var resizePicture = function (changeSign) {
+  var initialValue = +resizeInput.value.slice(0, -1);
+  var finishValue;
 
-var decreasePicture = function () {
-  if (resizeValue - resizeStep > resizeMin) {
-    resizeValue -= resizeStep;
+  if (changeSign === -1 && (initialValue === resizeMin || initialValue - resizeStep < resizeMin)) {
+    finishValue = resizeMin;
+  } else if (changeSign === 1 && (initialValue === resizeMax || initialValue + resizeStep > resizeMax)) {
+    finishValue = resizeMax;
   } else {
-    resizeValue = resizeMin;
+    finishValue = initialValue + resizeStep * changeSign;
   }
-  resizePicture();
+  resizeInput.value = finishValue + '%';
+  picturePreview.style = 'transform: scale(' + finishValue / 100 + ');';
 };
 
-var increasePicture = function () {
-  if (resizeMax > resizeValue + resizeStep) {
-    resizeValue += resizeStep;
-  } else {
-    resizeValue = resizeMax;
-  }
-  resizePicture();
-};
-
-var resizePicture = function () {
-  resizeInput.value = resizeValue + '%';
-  picturePreview.style = 'transform: scale(' + resizeValue / 100 + ');';
-};
-
-resizeDecButton.addEventListener('click', decreasePicture);
-resizeIncButton.addEventListener('click', increasePicture);
-
+resizeDecButton.addEventListener('click', function () {
+  resizePicture(-1);
+});
+resizeIncButton.addEventListener('click', function () {
+  resizePicture(+1);
+});
 
 // Хэштеги
 
@@ -265,9 +259,11 @@ var hashtagsValidityCheck = function () {
   if (hashtags.length > MAX_HASHTAGS) {
     uploadHashtags.setCustomValidity('Максимум 5 хэштэгов по 20 символов');
     addBorder(uploadHashtags);
+    return false;
   } else {
     uploadHashtags.setCustomValidity('');
     removeBorder(uploadHashtags);
+    return true;
   }
 };
 
