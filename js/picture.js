@@ -260,11 +260,10 @@ var hashtagsValidityCheck = function () {
     uploadHashtags.setCustomValidity('Максимум 5 хэштэгов по 20 символов');
     addBorder(uploadHashtags);
     return false;
-  } else {
-    uploadHashtags.setCustomValidity('');
-    removeBorder(uploadHashtags);
-    return true;
   }
+  uploadHashtags.setCustomValidity('');
+  removeBorder(uploadHashtags);
+  return true;
 };
 
 var commentValidityCheck = function () {
