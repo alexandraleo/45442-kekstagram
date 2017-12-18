@@ -38,34 +38,6 @@
     }));
   };
 
-  var effectName = function (nameToChange) {
-    var newClassName = nameToChange.replace('upload-', '');
-    picturePreview.classList.add(newClassName);
-  };
-  // var filterId;
-  var newClass;
-  var onClickEffect = function (event) {
-    var target = event.target;
-    picturePreview.className = 'effect-image-preview';
-    while (target !== uploadEffects) {
-      if (target.type === 'radio') {
-        newClass = target.id;
-        effectName(newClass);
-        levelEffectLevelValue.style.width = '20%';
-        levelEffectHandler.style.left = '20%';
-        levelEffectInputValue.value = 20;
-        picturePreview.style = 'filter: none;';
-        if (target.id !== 'upload-effect-none') {
-          effectsLevel.classList.remove('hidden');
-        } else {
-          effectsLevel.classList.add('hidden');
-        }
-        return;
-      }
-      target = target.parentNode;
-    }
-  };
-
   uploadInput.addEventListener('change', onClickOpenForm);
   uploadFormClose.addEventListener('click', onClickCloseForm);
   uploadComment.addEventListener('focus', function () {
@@ -75,18 +47,72 @@
     document.addEventListener('keydown', onEscCloseForm);
   });
 
-  uploadEffects.addEventListener('click', onClickEffect);
-
-  // Уровень эффекта
+  // Эффекты
 
   var effectsLevel = uploadOverlay.querySelector('.upload-effect-level');
   var levelEffectInputValue = effectsLevel.querySelector('.upload-effect-level-value');
   var levelEffectHandler = effectsLevel.querySelector('.upload-effect-level-pin');
   var levelEffectLevelValue = effectsLevel.querySelector('.upload-effect-level-val');
+  var newClass;
 
-  effectsLevel.classList.add('hidden');
-  levelEffectInputValue.classList.add('hidden');
-  levelEffectHandler.addEventListener('mousedown', function (evt) {
+  var onClickEffect = function (event) {
+    var target = event.target;
+    picturePreview.className = 'effect-image-preview';
+    while (target !== uploadEffects) {
+      if (target.type === 'radio') {
+        setDefaultFilterSettings();
+        newClass = target.id;
+        setEffect(newClass);
+        setFilterSettings(levelEffectInputValue.value);
+        return;
+      }
+      target = target.parentNode;
+    }
+  };
+
+  var setFilterSettings = function (filterLevel) {
+    switch (newClass) {
+      case 'upload-effect-chrome':
+        picturePreview.style = 'filter: grayscale(' + filterLevel / 100 + ');';
+        break;
+      case 'upload-effect-sepia':
+        picturePreview.style = 'filter: sepia(' + filterLevel / 100 + ');';
+        break;
+      case 'upload-effect-marvin':
+        picturePreview.style = 'filter: invert(' + filterLevel + '%);';
+        break;
+      case 'upload-effect-phobos':
+        picturePreview.style = 'filter: blur(' + Math.floor(filterLevel / 100 * 3) + 'px);';
+        break;
+      case 'upload-effect-heat':
+        picturePreview.style = 'filter: brightness(' + filterLevel / 100 * 3 + ');';
+        break;
+      default:
+        picturePreview.style.filter = 'none';
+        break;
+    }
+  };
+
+  var setEffect = function (nameToChange) {
+    var newClassName = nameToChange.replace('upload-', '');
+    picturePreview.classList.add(newClassName);
+
+    if (newClass !== 'upload-effect-none') {
+      effectsLevel.classList.remove('hidden');
+      setFilterSettings(levelEffectInputValue.value);
+    } else {
+      effectsLevel.classList.add('hidden');
+    }
+  };
+
+  var setDefaultFilterSettings = function () {
+    levelEffectLevelValue.style.width = '20%';
+    levelEffectHandler.style.left = '20%';
+    levelEffectInputValue.value = 20;
+    picturePreview.style = 'filter: none;';
+  };
+
+  var onMouseDownCoords = function (evt) {
     evt.preventDefault();
 
     var startCoordinates = {
@@ -118,31 +144,7 @@
       levelEffectHandler.style.left = newCoords + 'px';
       levelEffectLevelValue.style.width = newCoords + 'px';
       levelEffectInputValue.value = effectPercent;
-
-      var filterName = function () {
-        if (newClass === 'upload-effect-chrome') {
-          return 'grayscale';
-        } else if (newClass === 'upload-effect-sepia') {
-          return 'sepia';
-        } else if (newClass === 'upload-effect-marvin') {
-          return 'invert';
-        } else if (newClass === 'upload-effect-phobos') {
-          return 'blur';
-        } else if (newClass === 'upload-effect-heat') {
-          return 'brightness';
-        }
-        return 'none';
-      };
-
-      var filtersSettings = {
-        grayscale: effectPercent / 100,
-        sepia: effectPercent / 100,
-        invert: effectPercent + '%',
-        blur: Math.floor(effectPercent / 100 * 3) + 'px',
-        brightness: effectPercent / 100 * 3
-      };
-
-      changeFilterIntensity(filterName(), filtersSettings[filterName()]);
+      setFilterSettings(effectPercent);
     };
 
     var onMouseUp = function (upEvt) {
@@ -154,11 +156,12 @@
 
     document.addEventListener('mousemove', onMouseMove);
     document.addEventListener('mouseup', onMouseUp);
-  });
-
-  var changeFilterIntensity = function (filterName, intensityValue) {
-    picturePreview.style = 'filter: ' + filterName + '(' + intensityValue + ');';
   };
+
+  effectsLevel.classList.add('hidden');
+  levelEffectInputValue.classList.add('hidden');
+  uploadEffects.addEventListener('click', onClickEffect);
+  levelEffectHandler.addEventListener('mousedown', onMouseDownCoords);
 
   // Ресайз
   var resizeStep = 25;
