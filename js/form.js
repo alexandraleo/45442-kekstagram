@@ -58,13 +58,15 @@
   var onClickEffect = function (event) {
     var target = event.target;
     picturePreview.className = 'effect-image-preview';
+
     while (target !== uploadEffects) {
       if (target.type === 'radio') {
         setDefaultPreviewSettings();
-        newClass = target.id;
-        if (newClass !== 'upload-effect-none') {
-          window.initializeFilters.setEffect(picturePreview, newClass);
-          window.initializeFilters.setFilterSettings(newClass, picturePreview, levelEffectInputValue.value);
+        newClass = target.value;
+        if (newClass !== 'none') {
+          newClass = 'effect-' + newClass;
+          window.initializeFilters(picturePreview, newClass);
+          setFilterSettings(picturePreview, levelEffectInputValue.value);
           effectsLevel.classList.remove('hidden');
         } else {
           effectsLevel.classList.add('hidden');
@@ -75,6 +77,25 @@
     }
   };
 
+  var setFilterSettings = function (filterElement, filterLevel) {
+    switch (newClass) {
+      case 'effect-chrome':
+        filterElement.style = 'filter: grayscale(' + filterLevel / 100 + ');';
+        break;
+      case 'effect-sepia':
+        filterElement.style = 'filter: sepia(' + filterLevel / 100 + ');';
+        break;
+      case 'effect-marvin':
+        filterElement.style = 'filter: invert(' + filterLevel + '%);';
+        break;
+      case 'effect-phobos':
+        filterElement.style = 'filter: blur(' + Math.floor(filterLevel / 100 * 3) + 'px);';
+        break;
+      case 'effect-heat':
+        filterElement.style = 'filter: brightness(' + filterLevel / 100 * 3 + ');';
+        break;
+    }
+  };
   var setDefaultPreviewSettings = function () {
     picturePreview.style.transform = 'scale(1);';
     resizeInput.value = '100%';
@@ -116,7 +137,7 @@
       levelEffectHandler.style.left = newCoords + 'px';
       levelEffectLevelValue.style.width = newCoords + 'px';
       levelEffectInputValue.value = effectPercent;
-      window.initializeFilters.setFilterSettings(newClass, picturePreview, effectPercent);
+      setFilterSettings(picturePreview, effectPercent);
     };
 
     var onMouseUp = function (upEvt) {
