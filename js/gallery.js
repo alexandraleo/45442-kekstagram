@@ -2,29 +2,64 @@
 
 (function () {
   var gallery = document.querySelector('.pictures');
+  var filters = document.querySelector('.filters');
   var fragment = document.createDocumentFragment();
+  var initialPhotos;
+
   var onLoad = function (userPhotos) {
-    window.gallery.downloadPhotos(userPhotos);
-  };
-  window.gallery = {
-    photos: window.data.photosInfo(window.data.photosCount),
-    createGallery: function () {
-      for (var i = 0; i < window.data.photosCount; i++) {
-        fragment.appendChild(window.picture.takePhoto(this.photos[i]));
-      }
-      return fragment;
-    },
-    downloadPhotos: function (photos) {
-      for (var i = 0; i < photos.length; i++) {
-        var photo = window.picture.takePhoto(photos[i]);
-        fragment.appendChild(photo);
-      }
-      gallery.appendChild(fragment);
-    }
+    window.gallery.photos = userPhotos;
+    initialPhotos = userPhotos.concat();
+    renderPhotos();
+    filters.classList.remove('filters-inactive');
   };
 
-  // window.gallery.createGallery();
+  filters.addEventListener('click', function (evt) {
+    var target = evt.target;
+
+    while (target !== filters) {
+      if (target.name === 'filter') {
+        changeFilter(target.value);
+        return;
+      }
+      target = target.parentNode;
+    }
+  });
+
+  var changeFilter = function (filterName) {
+    switch (filterName) {
+      case 'popular':
+        window.gallery.photos.sort(function (a, b) {
+          return b.likes - a.likes;
+        });
+        break;
+      case 'discussed':
+        window.gallery.photos.sort(function (a, b) {
+          return b.comments.length - a.comments.length;
+        });
+        break;
+      case 'random':
+        window.gallery.photos.sort(function () {
+          return Math.random() - 0.5;
+        });
+        break;
+      default:
+        window.gallery.photos = initialPhotos.concat();
+    }
+    renderPhotos();
+  };
+
+  var renderPhotos = function () {
+    gallery.innerHTML = '';
+    for (var i = 0; i < window.gallery.photos.length; i++) {
+      var photo = window.picture.takePhoto(window.gallery.photos[i]);
+      fragment.appendChild(photo);
+    }
+    gallery.appendChild(fragment);
+  };
+
+  window.gallery = {
+    photos: [],
+  };
+
   window.backend.downloadData(onLoad, window.backend.onError);
-  // window.gallery.uploadPhotos(window.backend.downloadData);
-  // gallery.appendChild(fragment);
 })();

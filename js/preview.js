@@ -2,8 +2,6 @@
 (function () {
   var gallery = document.querySelector('.pictures');
   var galleryWindow = document.querySelector('.gallery-overlay');
-  var galleryChildren = gallery.children;
-  var pictures = document.querySelectorAll('.picture');
   var pictureCloseIcon = document.querySelector('.gallery-overlay-close');
 
   var galleryOverlay = function (photo) {
@@ -13,26 +11,26 @@
   };
 
   var onWindowEscPress = function (evt) {
-    window.util.isEscEvent(evt, closePicture);
+    if (window.util.isEscEvent(evt)) {
+      closePicture();
+    }
   };
 
-  var openPicture = function (evt) {
-    evt.preventDefault();
+  var openPicture = function (index) {
     galleryWindow.classList.remove('hidden');
     document.addEventListener('keydown', onWindowEscPress);
-    // galleryOverlay(window.gallery.photo[getChildIndex(evt)]);
-    galleryOverlay(window.data.photosInfo.photos[getChildIndex(evt)]);
+    galleryOverlay(window.gallery.photos[index]);
   };
 
-  var getChildIndex = function (evt) {
-    var clickedPhoto = evt.currentTarget;
+  var getChildIndex = function (node) {
+    var parent = node.parentNode;
 
-    for (var i = 0; i < galleryChildren.length; i++) {
-      if (galleryChildren[i] === clickedPhoto) {
-        break;
+    for (var i = 0; i < parent.children.length; i++) {
+      if (parent.children[i] === node) {
+        return i;
       }
     }
-    return i;
+    return -1;
   };
 
   var closePicture = function () {
@@ -40,13 +38,23 @@
   };
 
   var onEnterPressClose = function (evt) {
-    window.util.isEnterEvent(evt, closePicture);
+    if (window.util.isEnterEvent(evt)) {
+      closePicture();
+    }
   };
 
-  for (var i = 0; i < pictures.length; i++) {
-    var picture = pictures[i];
-    picture.addEventListener('click', openPicture);
-  }
+  gallery.addEventListener('click', function (evt) {
+    evt.preventDefault();
+    var target = evt.target;
+
+    while (target !== gallery) {
+      if (target.classList.contains('picture')) {
+        openPicture(getChildIndex(target));
+        return;
+      }
+      target = target.parentNode;
+    }
+  });
 
   pictureCloseIcon.addEventListener('click', closePicture);
   pictureCloseIcon.addEventListener('keydown', onEnterPressClose);
