@@ -20,15 +20,29 @@
     }
     return complexComment;
   };
+  // window.data = {
+  //   photosCount: 25,
+  //   photosInfo: function () {
+  //     var photos = [];
+  //     for (var i = 0; i < this.photosCount; i++) {
+  //       var photo = {
+  //         url: 'photos/' + (i + 1) + '.jpg',
+  //         likes: window.util.getRandomNumber(15, 200),
+  //         comments: textComments()
+  //       };
+  //       photos[i] = photo;
+  //     }
+  //     return photos;
+  //   }
+  // };
   window.data = {
-    photosCount: 25,
-    photosInfo: function () {
+    photosInfo: function (element) {
       var photos = [];
-      for (var i = 0; i < this.photosCount; i++) {
+      for (var i = 0; i < photos.length; i++) {
         var photo = {
-          url: 'photos/' + (i + 1) + '.jpg',
-          likes: window.util.getRandomNumber(15, 200),
-          comments: textComments()
+          url: element.querySelector('img').getAttribute('src'),
+          likes: element.querySelector('.picture-likes').textContent,
+          comments: element.querySelector('.picture-comments').textContent
         };
         photos[i] = photo;
       }

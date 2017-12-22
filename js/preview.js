@@ -20,7 +20,8 @@
     evt.preventDefault();
     galleryWindow.classList.remove('hidden');
     document.addEventListener('keydown', onWindowEscPress);
-    galleryOverlay(window.gallery.photo[getChildIndex(evt)]);
+    // galleryOverlay(window.gallery.photo[getChildIndex(evt)]);
+    galleryOverlay(window.data.photosInfo.photos[getChildIndex(evt)]);
   };
 
   var getChildIndex = function (evt) {
