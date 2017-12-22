@@ -42,15 +42,6 @@
     document.addEventListener('keydown', onEscCloseForm);
   });
 
-  // Отправка на сервер
-
-  uploadForm.addEventListener('submit', function (evt) {
-    window.uploadData(new FormData(uploadForm), function (response) {
-      uploadOverlay.classList.add('hidden');
-    });
-    evt.preventDefault();
-  });
-
   // Эффекты
 
   var effectsLevel = uploadOverlay.querySelector('.upload-effect-level');
@@ -225,4 +216,13 @@
   uploadComment.addEventListener('input', commentValidityCheck);
   uploadHashtags.addEventListener('input', hashtagsValidityCheck);
 
+  // Отправка на сервер
+  var onSuccessSubmit = function () {
+    uploadOverlay.classList.add('hidden');
+    onClickCloseForm();
+  };
+  uploadForm.addEventListener('submit', function (evt) {
+    window.backend.uploadData(new FormData(uploadForm), onSuccessSubmit(), window.backend.onError);
+    evt.preventDefault();
+  });
 })();
