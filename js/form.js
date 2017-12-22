@@ -1,6 +1,8 @@
 'use strict';
 
 (function () {
+  var DEFAULT_FILTER = 'none';
+
   var uploadForm = document.getElementById('upload-select-image');
   var uploadInput = document.getElementById('upload-file');
   var uploadOverlay = uploadForm.querySelector('.upload-overlay');
@@ -10,15 +12,21 @@
   var picturePreview = uploadOverlay.querySelector('.effect-image-preview');
 
   var onClickOpenForm = function () {
+    setDefaultFilter();
     uploadOverlay.classList.remove('hidden');
     document.addEventListener('keydown', onEscCloseForm);
   };
 
   var onClickCloseForm = function () {
     onCloseReset();
-    setDefaultPreviewSettings();
+    setDefaultFilter();
     uploadOverlay.classList.add('hidden');
     document.removeEventListener('keydown', onEscCloseForm);
+  };
+
+  var setDefaultFilter = function () {
+    applyFilter(DEFAULT_FILTER, DEFAULT_FILTER);
+    setEffectHandlerValue(20);
   };
 
   var onCloseReset = function () {
@@ -42,100 +50,84 @@
     document.addEventListener('keydown', onEscCloseForm);
   });
 
-  // Отправка на сервер
-
-  uploadForm.addEventListener('submit', function (evt) {
-    window.uploadData(new FormData(uploadForm), function (response) {
-      uploadOverlay.classList.add('hidden');
-    });
-    evt.preventDefault();
-  });
-
   // Эффекты
 
   var effectsLevel = uploadOverlay.querySelector('.upload-effect-level');
   var levelEffectInputValue = effectsLevel.querySelector('.upload-effect-level-value');
   var levelEffectHandler = effectsLevel.querySelector('.upload-effect-level-pin');
   var levelEffectValue = effectsLevel.querySelector('.upload-effect-level-val');
-  var newClass;
+  var effectClass;
 
-  var applyFilter = function (newFilter) {
-    newClass = 'effect-' + newFilter;
-    setDefaultPreviewSettings();
-    if (newFilter !== 'none') {
-      picturePreview.classList.add(newClass);
-      setFilterSettings(levelEffectInputValue.value);
-      effectsLevel.classList.remove('hidden');
-      adjustScale(document.querySelector('.upload-resize-controls-value').value);
-    }
-    if (newFilter === 'none') {
+  var applyFilter = function (oldFilter, newFilter) {
+    oldFilter = 'effect-' + oldFilter;
+    newFilter = 'effect-' + newFilter;
+
+    picturePreview.classList.remove(oldFilter);
+    if (newFilter === 'effect-none') {
       effectsLevel.classList.add('hidden');
+    } else {
+      picturePreview.classList.add(newFilter);
+      effectsLevel.classList.remove('hidden');
     }
+
+    effectClass = newFilter;
+    setEffectHandlerValue(20);
   };
 
   var setFilterSettings = function (filterLevel) {
-    switch (newClass) {
+    var filter = '';
+
+    switch (effectClass) {
       case 'effect-chrome':
-        picturePreview.style = 'filter: grayscale(' + filterLevel / 100 + ');';
+        filter = 'grayscale(' + filterLevel / 100 + ')';
         break;
       case 'effect-sepia':
-        picturePreview.style = 'filter: sepia(' + filterLevel / 100 + ');';
+        filter = 'sepia(' + filterLevel / 100 + ')';
         break;
       case 'effect-marvin':
-        picturePreview.style = 'filter: invert(' + filterLevel + '%);';
+        filter = 'invert(' + filterLevel + '%)';
         break;
       case 'effect-phobos':
-        picturePreview.style = 'filter: blur(' + Math.floor(filterLevel / 100 * 3) + 'px);';
+        filter = 'blur(' + Math.floor(filterLevel / 100 * 3) + 'px)';
         break;
       case 'effect-heat':
-        picturePreview.style = 'filter: brightness(' + filterLevel / 100 * 3 + ');';
+        filter = 'brightness(' + filterLevel / 100 * 3 + ')';
         break;
     }
+
+    picturePreview.style.filter = filter;
   };
 
-  var setDefaultPreviewSettings = function () {
-    picturePreview.className = 'effect-image-preview';
-    picturePreview.style.transform = 'scale(1)';
-    document.querySelector('.upload-resize-controls-value').value = '100%';
-    levelEffectValue.style.width = '20%';
-    levelEffectHandler.style.left = '20%';
-    levelEffectInputValue.value = 20;
-    picturePreview.style.filter = '';
+  var setEffectHandlerValue = function (percent) {
+    var parentWidth = levelEffectHandler.parentNode.offsetWidth;
+    var leftOffset = percent * parentWidth / 100;
+    levelEffectHandler.style.left = leftOffset + 'px';
+    levelEffectValue.style.width = leftOffset + 'px';
+    levelEffectInputValue.value = percent;
+    setFilterSettings(percent);
   };
 
   var onMouseDownCoords = function (evt) {
     evt.preventDefault();
 
-    var startCoordinates = {
-      x: evt.clientX
-    };
+    var currentPointX = evt.clientX;
+    var parentWidth = levelEffectHandler.parentNode.offsetWidth;
 
     var onMouseMove = function (moveEvt) {
       moveEvt.preventDefault();
 
-      var shift = {
-        x: startCoordinates.x - moveEvt.clientX
-      };
+      var shiftX = currentPointX - moveEvt.clientX;
 
-      startCoordinates = {
-        x: moveEvt.clientX
-      };
-      var newCoords = levelEffectHandler.offsetLeft - shift.x;
-      var effectPercent;
+      currentPointX = moveEvt.clientX;
+      var newCoords = levelEffectHandler.offsetLeft - shiftX;
 
       if (newCoords < 0) {
         newCoords = 0;
-        effectPercent = 0;
-      } else if (newCoords > levelEffectHandler.parentNode.offsetWidth) {
-        newCoords = levelEffectHandler.parentNode.offsetWidth;
-        effectPercent = 100;
-      } else {
-        effectPercent = Math.floor(newCoords / levelEffectHandler.parentNode.offsetWidth * 100);
+      } else if (newCoords > parentWidth) {
+        newCoords = parentWidth;
       }
-      levelEffectHandler.style.left = newCoords + 'px';
-      levelEffectValue.style.width = newCoords + 'px';
-      levelEffectInputValue.value = effectPercent;
-      setFilterSettings(effectPercent);
+      var percent = Math.round(newCoords / parentWidth * 100);
+      setEffectHandlerValue(percent);
     };
 
     var onMouseUp = function (upEvt) {
@@ -148,9 +140,8 @@
     document.addEventListener('mousemove', onMouseMove);
     document.addEventListener('mouseup', onMouseUp);
   };
-  effectsLevel.classList.add('hidden');
+
   window.initializeFilters(uploadEffects, applyFilter);
-  levelEffectInputValue.classList.add('hidden');
   levelEffectHandler.addEventListener('mousedown', onMouseDownCoords);
 
   // Ресайз
@@ -225,4 +216,13 @@
   uploadComment.addEventListener('input', commentValidityCheck);
   uploadHashtags.addEventListener('input', hashtagsValidityCheck);
 
+  // Отправка на сервер
+  var onSuccessSubmit = function () {
+    uploadOverlay.classList.add('hidden');
+    onClickCloseForm();
+  };
+  uploadForm.addEventListener('submit', function (evt) {
+    window.backend.uploadData(new FormData(uploadForm), onSuccessSubmit, window.backend.onError);
+    evt.preventDefault();
+  });
 })();

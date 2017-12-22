@@ -13,7 +13,6 @@
       switch (xhr.status) {
         case 200:
           onLoad(xhr.response);
-          // console.log(xhr.response);
           break;
         case 400:
           error = 'Неверный запрос';
@@ -50,6 +49,12 @@
       var xhr = initializeXHR(onLoad, onError);
       xhr.open('POST', URL_UPLOAD);
       xhr.send(data);
+    },
+    onError: function (error) {
+      var messageBlock = document.createElement('div');
+      messageBlock.style = 'width: 100%; heigth: 100px; background-color: red; color: black; font-size: 20px; text-align: center; font-weight: bold;';
+      messageBlock.textContent = error;
+      document.body.insertAdjacentElement('afterbegin', messageBlock);
     }
   };
 })();
