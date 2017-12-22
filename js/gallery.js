@@ -12,7 +12,15 @@
       return fragment;
     }
   };
-
+  // var uploadPhotos = function (photos) {
+  //   for (var i = 0; i < photos.length; i++) {
+  //     var photo = window.picture.takePhoto(photos[i]);
+  //     fragment.appendChild(photo);
+  //   }
+  //   gallery.appendChild(fragment);
+  // };
   window.gallery.createGallery();
+  // window.backend.downloadData();
+  // uploadPhotos(window.backend.downloadData);
   gallery.appendChild(fragment);
 })();

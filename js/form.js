@@ -8,10 +8,6 @@
   var uploadComment = uploadOverlay.querySelector('.upload-form-description');
   var uploadEffects = uploadOverlay.querySelector('.upload-effect-controls');
   var picturePreview = uploadOverlay.querySelector('.effect-image-preview');
-  var uploadResize = uploadOverlay.querySelector('.upload-resize-controls');
-  var resizeDecButton = uploadResize.querySelector('.upload-resize-controls-button-dec');
-  var resizeIncButton = uploadResize.querySelector('.upload-resize-controls-button-inc');
-  var resizeInput = uploadResize.querySelector('.upload-resize-controls-value');
 
   var onClickOpenForm = function () {
     uploadOverlay.classList.remove('hidden');
@@ -20,6 +16,7 @@
 
   var onClickCloseForm = function () {
     onCloseReset();
+    setDefaultPreviewSettings();
     uploadOverlay.classList.add('hidden');
     document.removeEventListener('keydown', onEscCloseForm);
   };
@@ -28,8 +25,6 @@
     picturePreview.className = 'effect-image-preview';
     uploadHashtags.style.borderColor = 'transparent';
     uploadComment.style.borderColor = 'transparent';
-    picturePreview.style = 'transform: scale(1);';
-    resizeInput.value = '100%';
   };
 
   var onEscCloseForm = function (evt) {
@@ -47,69 +42,65 @@
     document.addEventListener('keydown', onEscCloseForm);
   });
 
+  // Отправка на сервер
+
+  uploadForm.addEventListener('submit', function (evt) {
+    window.uploadData(new FormData(uploadForm), function (response) {
+      uploadOverlay.classList.add('hidden');
+    });
+    evt.preventDefault();
+  });
+
   // Эффекты
 
   var effectsLevel = uploadOverlay.querySelector('.upload-effect-level');
   var levelEffectInputValue = effectsLevel.querySelector('.upload-effect-level-value');
   var levelEffectHandler = effectsLevel.querySelector('.upload-effect-level-pin');
-  var levelEffectLevelValue = effectsLevel.querySelector('.upload-effect-level-val');
+  var levelEffectValue = effectsLevel.querySelector('.upload-effect-level-val');
   var newClass;
 
-  var onClickEffect = function (event) {
-    var target = event.target;
-    picturePreview.className = 'effect-image-preview';
-    while (target !== uploadEffects) {
-      if (target.type === 'radio') {
-        setDefaultFilterSettings();
-        newClass = target.id;
-        setEffect(newClass);
-        setFilterSettings(levelEffectInputValue.value);
-        return;
-      }
-      target = target.parentNode;
+  var applyFilter = function (newFilter) {
+    newClass = 'effect-' + newFilter;
+    setDefaultPreviewSettings();
+    if (newFilter !== 'none') {
+      picturePreview.classList.add(newClass);
+      setFilterSettings(levelEffectInputValue.value);
+      effectsLevel.classList.remove('hidden');
+      adjustScale(document.querySelector('.upload-resize-controls-value').value);
+    }
+    if (newFilter === 'none') {
+      effectsLevel.classList.add('hidden');
     }
   };
 
   var setFilterSettings = function (filterLevel) {
     switch (newClass) {
-      case 'upload-effect-chrome':
+      case 'effect-chrome':
         picturePreview.style = 'filter: grayscale(' + filterLevel / 100 + ');';
         break;
-      case 'upload-effect-sepia':
+      case 'effect-sepia':
         picturePreview.style = 'filter: sepia(' + filterLevel / 100 + ');';
         break;
-      case 'upload-effect-marvin':
+      case 'effect-marvin':
         picturePreview.style = 'filter: invert(' + filterLevel + '%);';
         break;
-      case 'upload-effect-phobos':
+      case 'effect-phobos':
         picturePreview.style = 'filter: blur(' + Math.floor(filterLevel / 100 * 3) + 'px);';
         break;
-      case 'upload-effect-heat':
+      case 'effect-heat':
         picturePreview.style = 'filter: brightness(' + filterLevel / 100 * 3 + ');';
         break;
-      default:
-        picturePreview.style.filter = 'none';
-        break;
     }
   };
 
-  var setEffect = function (nameToChange) {
-    var newClassName = nameToChange.replace('upload-', '');
-    picturePreview.classList.add(newClassName);
-
-    if (newClass !== 'upload-effect-none') {
-      effectsLevel.classList.remove('hidden');
-      setFilterSettings(levelEffectInputValue.value);
-    } else {
-      effectsLevel.classList.add('hidden');
-    }
-  };
-
-  var setDefaultFilterSettings = function () {
-    levelEffectLevelValue.style.width = '20%';
+  var setDefaultPreviewSettings = function () {
+    picturePreview.className = 'effect-image-preview';
+    picturePreview.style.transform = 'scale(1)';
+    document.querySelector('.upload-resize-controls-value').value = '100%';
+    levelEffectValue.style.width = '20%';
     levelEffectHandler.style.left = '20%';
     levelEffectInputValue.value = 20;
-    picturePreview.style = 'filter: none;';
+    picturePreview.style.filter = '';
   };
 
   var onMouseDownCoords = function (evt) {
@@ -142,7 +133,7 @@
         effectPercent = Math.floor(newCoords / levelEffectHandler.parentNode.offsetWidth * 100);
       }
       levelEffectHandler.style.left = newCoords + 'px';
-      levelEffectLevelValue.style.width = newCoords + 'px';
+      levelEffectValue.style.width = newCoords + 'px';
       levelEffectInputValue.value = effectPercent;
       setFilterSettings(effectPercent);
     };
@@ -157,38 +148,19 @@
     document.addEventListener('mousemove', onMouseMove);
     document.addEventListener('mouseup', onMouseUp);
   };
-
   effectsLevel.classList.add('hidden');
+  window.initializeFilters(uploadEffects, applyFilter);
   levelEffectInputValue.classList.add('hidden');
-  uploadEffects.addEventListener('click', onClickEffect);
   levelEffectHandler.addEventListener('mousedown', onMouseDownCoords);
 
   // Ресайз
-  var resizeStep = 25;
-  var resizeMin = 25;
-  var resizeMax = 100;
+  var resizeControls = document.querySelector('.upload-resize-controls');
 
-  var resizePicture = function (changeSign) {
-    var initialValue = +resizeInput.value.slice(0, -1);
-    var finishValue;
-
-    if (changeSign === -1 && (initialValue === resizeMin || initialValue - resizeStep < resizeMin)) {
-      finishValue = resizeMin;
-    } else if (changeSign === 1 && (initialValue === resizeMax || initialValue + resizeStep > resizeMax)) {
-      finishValue = resizeMax;
-    } else {
-      finishValue = initialValue + resizeStep * changeSign;
-    }
-    resizeInput.value = finishValue + '%';
-    picturePreview.style = 'transform: scale(' + finishValue / 100 + ');';
+  var adjustScale = function (scale) {
+    picturePreview.style.transform = 'scale(' + scale / 100 + ')';
   };
 
-  resizeDecButton.addEventListener('click', function () {
-    resizePicture(-1);
-  });
-  resizeIncButton.addEventListener('click', function () {
-    resizePicture(+1);
-  });
+  window.initializeScale(resizeControls, adjustScale);
 
   // Хэштеги
 
