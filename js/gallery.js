@@ -50,10 +50,9 @@
 
   var renderPhotos = function () {
     gallery.innerHTML = '';
-    for (var i = 0; i < window.gallery.photos.length; i++) {
-      var photo = window.picture.takePhoto(window.gallery.photos[i]);
-      fragment.appendChild(photo);
-    }
+    window.gallery.photos.forEach(function (photo) {
+      fragment.appendChild(window.picture.takePhoto(photo));
+    });
     gallery.appendChild(fragment);
   };
 

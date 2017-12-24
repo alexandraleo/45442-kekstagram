@@ -12,11 +12,11 @@
 
   var onWindowEscPress = function (evt) {
     if (window.util.isEscEvent(evt)) {
-      closePicture();
+      onClosePicture();
     }
   };
 
-  var openPicture = function (index) {
+  var onOpenPicture = function (index) {
     galleryWindow.classList.remove('hidden');
     document.addEventListener('keydown', onWindowEscPress);
     galleryOverlay(window.gallery.photos[index]);
@@ -33,13 +33,13 @@
     return -1;
   };
 
-  var closePicture = function () {
+  var onClosePicture = function () {
     galleryWindow.classList.add('hidden');
   };
 
   var onEnterPressClose = function (evt) {
     if (window.util.isEnterEvent(evt)) {
-      closePicture();
+      onClosePicture();
     }
   };
 
@@ -49,13 +49,13 @@
 
     while (target !== gallery) {
       if (target.classList.contains('picture')) {
-        openPicture(getChildIndex(target));
+        onOpenPicture(getChildIndex(target));
         return;
       }
       target = target.parentNode;
     }
   });
 
-  pictureCloseIcon.addEventListener('click', closePicture);
+  pictureCloseIcon.addEventListener('click', onClosePicture);
   pictureCloseIcon.addEventListener('keydown', onEnterPressClose);
 })();

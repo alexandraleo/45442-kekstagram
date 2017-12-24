@@ -12,7 +12,7 @@
   var uploadInput = document.getElementById('upload-file');
   var uploadOverlay = uploadForm.querySelector('.upload-overlay');
   var uploadFormClose = uploadOverlay.querySelector('.upload-form-cancel');
-  var uploadComment = uploadOverlay.querySelector('.upload-form-description');
+  var uploadCommentInput = uploadOverlay.querySelector('.upload-form-description');
   var uploadEffects = uploadOverlay.querySelector('.upload-effect-controls');
   var picturePreview = uploadOverlay.querySelector('.effect-image-preview');
   var effectsLevel = uploadOverlay.querySelector('.upload-effect-level');
@@ -45,7 +45,7 @@
   var onCloseReset = function () {
     picturePreview.className = 'effect-image-preview';
     uploadHashtags.style.borderColor = 'transparent';
-    uploadComment.style.borderColor = 'transparent';
+    uploadCommentInput.style.borderColor = 'transparent';
   };
 
   var onEscCloseForm = function (evt) {
@@ -56,10 +56,10 @@
 
   uploadInput.addEventListener('change', onClickOpenForm);
   uploadFormClose.addEventListener('click', onClickCloseForm);
-  uploadComment.addEventListener('focus', function () {
+  uploadCommentInput.addEventListener('focus', function () {
     document.removeEventListener('keydown', onEscCloseForm);
   });
-  uploadComment.addEventListener('blur', function () {
+  uploadCommentInput.addEventListener('blur', function () {
     document.addEventListener('keydown', onEscCloseForm);
   });
 
@@ -80,7 +80,7 @@
     }
 
     effectClass = newFilter;
-    setEffectHandlerValue(20);
+    setEffectHandlerValue(DEFAULT_FILTER_VALUE);
   };
 
   var setFilterSettings = function (filterLevel) {
@@ -162,7 +162,7 @@
   window.initializeScale(resizeControls, adjustScale);
 
   // Хэштеги
-
+  var hashtagsSpacesValidity = [];
   var addBorder = function (input) {
     input.style.borderColor = 'red';
   };
@@ -170,7 +170,6 @@
   var removeBorder = function (input) {
     input.style.borderColor = 'transparent';
   };
-
   var hashtagsValidityCheck = function () {
     var hashtags = uploadHashtags.value.trim().toLowerCase().split(' ');
     if (uploadHashtags.value.length === 0) {
@@ -194,6 +193,12 @@
         addBorder(uploadHashtags);
         return false;
       }
+      hashtagsSpacesValidity[i] = hashtags[i].slice(1);
+      if (hashtagsSpacesValidity[i].search(/#/) !== -1) {
+        uploadHashtags.setCustomValidity('Хэштеги должны разделяться пробелами');
+        addBorder(uploadHashtags);
+        return false;
+      }
     }
     if (hashtags.length > MAX_HASHTAGS) {
       uploadHashtags.setCustomValidity('Максимум 5 хэштэгов по 20 символов');
@@ -206,16 +211,16 @@
   };
 
   var commentValidityCheck = function () {
-    if (uploadComment.value.length > MAX_COMMENT_LENGTH) {
-      uploadComment.setCustomValidity('Комментарий не должен содержать больше 140 символов. Сейчас символов: ' + uploadComment.value.length);
-      addBorder(uploadComment);
+    if (uploadCommentInput.value.length > MAX_COMMENT_LENGTH) {
+      uploadCommentInput.setCustomValidity('Комментарий не должен содержать больше 140 символов. Сейчас символов: ' + uploadCommentInput.value.length);
+      addBorder(uploadCommentInput);
     } else {
-      uploadComment.setCustomValidity('');
-      removeBorder(uploadComment);
+      uploadCommentInput.setCustomValidity('');
+      removeBorder(uploadCommentInput);
     }
   };
 
-  uploadComment.addEventListener('input', commentValidityCheck);
+  uploadCommentInput.addEventListener('input', commentValidityCheck);
   uploadHashtags.addEventListener('input', hashtagsValidityCheck);
 
   // Отправка по сабмиту
