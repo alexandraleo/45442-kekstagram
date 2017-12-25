@@ -2,7 +2,7 @@
 (function () {
   var gallery = document.querySelector('.pictures');
   var galleryWindow = document.querySelector('.gallery-overlay');
-  var pictureCloseIcon = document.querySelector('.gallery-overlay-close');
+  var closeIconNode = document.querySelector('.gallery-overlay-close');
 
   var galleryOverlay = function (photo) {
     galleryWindow.querySelector('img').src = photo.url;
@@ -56,6 +56,6 @@
     }
   });
 
-  pictureCloseIcon.addEventListener('click', onClosePicture);
-  pictureCloseIcon.addEventListener('keydown', onEnterPressClose);
+  closeIconNode.addEventListener('click', onClosePicture);
+  closeIconNode.addEventListener('keydown', onEnterPressClose);
 })();
