@@ -6,13 +6,13 @@
     var resizeMin = 25;
     var resizeMax = 100;
 
-    var uploadResize = document.querySelector('.upload-resize-controls');
-    var resizeDecButton = uploadResize.querySelector('.upload-resize-controls-button-dec');
-    var resizeIncButton = uploadResize.querySelector('.upload-resize-controls-button-inc');
-    var resizeInput = uploadResize.querySelector('.upload-resize-controls-value');
+    var resizeControlsNode = document.querySelector('.upload-resize-controls');
+    var decButtonNode = resizeControlsNode.querySelector('.upload-resize-controls-button-dec');
+    var incButtonNode = resizeControlsNode.querySelector('.upload-resize-controls-button-inc');
+    var resizeInputNode = resizeControlsNode.querySelector('.upload-resize-controls-value');
 
     var resizePicture = function (changeSign) {
-      var initialValue = +resizeInput.value.slice(0, -1);
+      var initialValue = +resizeInputNode.value.slice(0, -1);
       var finishValue;
 
       if (changeSign === -1 && (initialValue === resizeMin || initialValue - resizeStep < resizeMin)) {
@@ -22,14 +22,14 @@
       } else {
         finishValue = initialValue + resizeStep * changeSign;
       }
-      resizeInput.value = finishValue + '%';
+      resizeInputNode.value = finishValue + '%';
       adjustScale(finishValue);
     };
 
-    resizeDecButton.addEventListener('click', function () {
+    decButtonNode.addEventListener('click', function () {
       resizePicture(-1);
     });
-    resizeIncButton.addEventListener('click', function () {
+    incButtonNode.addEventListener('click', function () {
       resizePicture(+1);
     });
   };

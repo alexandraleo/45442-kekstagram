@@ -2,13 +2,13 @@
 
 (function () {
   window.initializeFilters = function (filterElement, applyFilter) {
-    var uploadEffects = document.querySelector('.upload-effect-controls');
+    var uploadEffectsNode = document.querySelector('.upload-effect-controls');
 
     var currentFilter;
     var onClickEffect = function (evt) {
       var target = evt.target;
 
-      while (target !== uploadEffects) {
+      while (target !== uploadEffectsNode) {
         if (target.type === 'radio') {
           applyFilter(currentFilter, target.value);
           currentFilter = target.value;

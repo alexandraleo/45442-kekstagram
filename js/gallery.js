@@ -1,8 +1,8 @@
 'use strict';
 
 (function () {
-  var gallery = document.querySelector('.pictures');
-  var filters = document.querySelector('.filters');
+  var galleryNode = document.querySelector('.pictures');
+  var filtersNode = document.querySelector('.filters');
   var fragment = document.createDocumentFragment();
   var initialPhotos;
 
@@ -10,15 +10,15 @@
     window.gallery.photos = userPhotos;
     initialPhotos = userPhotos.concat();
     renderPhotos();
-    filters.classList.remove('filters-inactive');
+    filtersNode.classList.remove('filters-inactive');
   };
 
-  filters.addEventListener('click', function (evt) {
+  filtersNode.addEventListener('click', function (evt) {
     var target = evt.target;
 
-    while (target !== filters) {
+    while (target !== filtersNode) {
       if (target.name === 'filter') {
-        changeFilter(target.value);
+        window.debounce(changeFilter(target.value));
         return;
       }
       target = target.parentNode;
@@ -49,12 +49,11 @@
   };
 
   var renderPhotos = function () {
-    gallery.innerHTML = '';
-    for (var i = 0; i < window.gallery.photos.length; i++) {
-      var photo = window.picture.takePhoto(window.gallery.photos[i]);
-      fragment.appendChild(photo);
-    }
-    gallery.appendChild(fragment);
+    galleryNode.innerHTML = '';
+    window.gallery.photos.forEach(function (photo) {
+      fragment.appendChild(window.picture.takePhoto(photo));
+    });
+    galleryNode.appendChild(fragment);
   };
 
   window.gallery = {

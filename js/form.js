@@ -8,32 +8,32 @@
   var MAX_HASHTAG_LENGTH = 20;
   var DEFAULT_FILTER_VALUE = 20;
 
-  var uploadForm = document.getElementById('upload-select-image');
-  var uploadInput = document.getElementById('upload-file');
-  var uploadOverlay = uploadForm.querySelector('.upload-overlay');
-  var uploadFormClose = uploadOverlay.querySelector('.upload-form-cancel');
-  var uploadComment = uploadOverlay.querySelector('.upload-form-description');
-  var uploadEffects = uploadOverlay.querySelector('.upload-effect-controls');
-  var picturePreview = uploadOverlay.querySelector('.effect-image-preview');
-  var effectsLevel = uploadOverlay.querySelector('.upload-effect-level');
-  var levelEffectInputValue = effectsLevel.querySelector('.upload-effect-level-value');
-  var levelEffectHandler = effectsLevel.querySelector('.upload-effect-level-pin');
-  var levelEffectValue = effectsLevel.querySelector('.upload-effect-level-val');
-  var resizeControls = document.querySelector('.upload-resize-controls');
-  var uploadHashtags = uploadOverlay.querySelector('.upload-form-hashtags');
+  var uploadFormNode = document.getElementById('upload-select-image');
+  var uploadInputNode = document.getElementById('upload-file');
+  var overlayNode = uploadFormNode.querySelector('.upload-overlay');
+  var closeIconNode = overlayNode.querySelector('.upload-form-cancel');
+  var commentInputNode = overlayNode.querySelector('.upload-form-description');
+  var effectsControlsNode = overlayNode.querySelector('.upload-effect-controls');
+  var picturePreviewNode = overlayNode.querySelector('.effect-image-preview');
+  var effectsLevelNode = overlayNode.querySelector('.upload-effect-level');
+  var effectValueNode = effectsLevelNode.querySelector('.upload-effect-level-value');
+  var effectHandlerNode = effectsLevelNode.querySelector('.upload-effect-level-pin');
+  var levelEffectValue = effectsLevelNode.querySelector('.upload-effect-level-val');
+  var resizeControlsNode = document.querySelector('.upload-resize-controls');
+  var hashtagsNode = overlayNode.querySelector('.upload-form-hashtags');
 
   var onClickOpenForm = function () {
     setDefaultFilter();
-    uploadOverlay.classList.remove('hidden');
+    overlayNode.classList.remove('hidden');
     document.addEventListener('keydown', onEscCloseForm);
   };
 
   var onClickCloseForm = function () {
-    uploadForm.reset();
+    uploadFormNode.reset();
     onCloseReset();
     adjustScale(DEFAULT_SIZE);
     setDefaultFilter();
-    uploadOverlay.classList.add('hidden');
+    overlayNode.classList.add('hidden');
     document.removeEventListener('keydown', onEscCloseForm);
   };
 
@@ -43,23 +43,23 @@
   };
 
   var onCloseReset = function () {
-    picturePreview.className = 'effect-image-preview';
-    uploadHashtags.style.borderColor = 'transparent';
-    uploadComment.style.borderColor = 'transparent';
+    picturePreviewNode.className = 'effect-image-preview';
+    hashtagsNode.style.borderColor = 'transparent';
+    commentInputNode.style.borderColor = 'transparent';
   };
 
   var onEscCloseForm = function (evt) {
     if (window.util.isEscEvent(evt)) {
-      uploadFormClose.click();
+      closeIconNode.click();
     }
   };
 
-  uploadInput.addEventListener('change', onClickOpenForm);
-  uploadFormClose.addEventListener('click', onClickCloseForm);
-  uploadComment.addEventListener('focus', function () {
+  uploadInputNode.addEventListener('change', onClickOpenForm);
+  closeIconNode.addEventListener('click', onClickCloseForm);
+  commentInputNode.addEventListener('focus', function () {
     document.removeEventListener('keydown', onEscCloseForm);
   });
-  uploadComment.addEventListener('blur', function () {
+  commentInputNode.addEventListener('blur', function () {
     document.addEventListener('keydown', onEscCloseForm);
   });
 
@@ -71,16 +71,16 @@
     oldFilter = 'effect-' + oldFilter;
     newFilter = 'effect-' + newFilter;
 
-    picturePreview.classList.remove(oldFilter);
+    picturePreviewNode.classList.remove(oldFilter);
     if (newFilter === 'effect-none') {
-      effectsLevel.classList.add('hidden');
+      effectsLevelNode.classList.add('hidden');
     } else {
-      picturePreview.classList.add(newFilter);
-      effectsLevel.classList.remove('hidden');
+      picturePreviewNode.classList.add(newFilter);
+      effectsLevelNode.classList.remove('hidden');
     }
 
     effectClass = newFilter;
-    setEffectHandlerValue(20);
+    setEffectHandlerValue(DEFAULT_FILTER_VALUE);
   };
 
   var setFilterSettings = function (filterLevel) {
@@ -104,15 +104,15 @@
         break;
     }
 
-    picturePreview.style.filter = filter;
+    picturePreviewNode.style.filter = filter;
   };
 
   var setEffectHandlerValue = function (percent) {
-    var parentWidth = levelEffectHandler.parentNode.offsetWidth;
+    var parentWidth = effectHandlerNode.parentNode.offsetWidth;
     var leftOffset = percent * parentWidth / 100;
-    levelEffectHandler.style.left = leftOffset + 'px';
+    effectHandlerNode.style.left = leftOffset + 'px';
     levelEffectValue.style.width = leftOffset + 'px';
-    levelEffectInputValue.value = percent;
+    effectValueNode.value = percent;
     setFilterSettings(percent);
   };
 
@@ -120,7 +120,7 @@
     evt.preventDefault();
 
     var currentPointX = evt.clientX;
-    var parentWidth = levelEffectHandler.parentNode.offsetWidth;
+    var parentWidth = effectHandlerNode.parentNode.offsetWidth;
 
     var onMouseMove = function (moveEvt) {
       moveEvt.preventDefault();
@@ -128,7 +128,7 @@
       var shiftX = currentPointX - moveEvt.clientX;
 
       currentPointX = moveEvt.clientX;
-      var newCoords = levelEffectHandler.offsetLeft - shiftX;
+      var newCoords = effectHandlerNode.offsetLeft - shiftX;
 
       if (newCoords < 0) {
         newCoords = 0;
@@ -150,19 +150,18 @@
     document.addEventListener('mouseup', onMouseUp);
   };
 
-  window.initializeFilters(uploadEffects, applyFilter);
-  levelEffectHandler.addEventListener('mousedown', onMouseDownCoords);
+  window.initializeFilters(effectsControlsNode, applyFilter);
+  effectHandlerNode.addEventListener('mousedown', onMouseDownCoords);
 
   // Ресайз
 
   var adjustScale = function (scale) {
-    picturePreview.style.transform = 'scale(' + scale / 100 + ')';
+    picturePreviewNode.style.transform = 'scale(' + scale / 100 + ')';
   };
 
-  window.initializeScale(resizeControls, adjustScale);
+  window.initializeScale(resizeControlsNode, adjustScale);
 
   // Хэштеги
-
   var addBorder = function (input) {
     input.style.borderColor = 'red';
   };
@@ -170,58 +169,65 @@
   var removeBorder = function (input) {
     input.style.borderColor = 'transparent';
   };
-
   var hashtagsValidityCheck = function () {
-    var hashtags = uploadHashtags.value.trim().toLowerCase().split(' ');
-    if (uploadHashtags.value.length === 0) {
-      uploadHashtags.setCustomValidity('');
-      removeBorder(uploadHashtags);
+    var hashtagsSpacesValidity = [];
+
+    var hashtags = hashtagsNode.value.trim().toLowerCase().split(' ');
+    if (hashtagsNode.value.length === 0) {
+      hashtagsNode.setCustomValidity('');
+      removeBorder(hashtagsNode);
       return true;
     }
     for (var i = 0; i < hashtags.length; i++) {
       if (hashtags[i].length > MAX_HASHTAG_LENGTH) {
-        uploadHashtags.setCustomValidity('Максимум 5 хэштэгов по 20 символов');
-        addBorder(uploadHashtags);
+        hashtagsNode.setCustomValidity('Максимум 5 хэштэгов по 20 символов');
+        addBorder(hashtagsNode);
         return false;
       }
       if (hashtags[i][0] !== '#') {
-        uploadHashtags.setCustomValidity('Каждый хэштег должен начинаться с #');
-        addBorder(uploadHashtags);
+        hashtagsNode.setCustomValidity('Каждый хэштег должен начинаться с #');
+        addBorder(hashtagsNode);
         return false;
       }
       if (hashtags.indexOf(hashtags[i]) !== i) {
-        uploadHashtags.setCustomValidity('Хэштеги не должны повторяться');
-        addBorder(uploadHashtags);
+        hashtagsNode.setCustomValidity('Хэштеги не должны повторяться');
+        addBorder(hashtagsNode);
+        return false;
+      }
+      hashtagsSpacesValidity[i] = hashtags[i].slice(1);
+      if (hashtagsSpacesValidity[i].search(/#/) !== -1) {
+        hashtagsNode.setCustomValidity('Хэштеги должны разделяться пробелами');
+        addBorder(hashtagsNode);
         return false;
       }
     }
     if (hashtags.length > MAX_HASHTAGS) {
-      uploadHashtags.setCustomValidity('Максимум 5 хэштэгов по 20 символов');
-      addBorder(uploadHashtags);
+      hashtagsNode.setCustomValidity('Максимум 5 хэштэгов по 20 символов');
+      addBorder(hashtagsNode);
       return false;
     }
-    uploadHashtags.setCustomValidity('');
-    removeBorder(uploadHashtags);
+    hashtagsNode.setCustomValidity('');
+    removeBorder(hashtagsNode);
     return true;
   };
 
   var commentValidityCheck = function () {
-    if (uploadComment.value.length > MAX_COMMENT_LENGTH) {
-      uploadComment.setCustomValidity('Комментарий не должен содержать больше 140 символов. Сейчас символов: ' + uploadComment.value.length);
-      addBorder(uploadComment);
+    if (commentInputNode.value.length > MAX_COMMENT_LENGTH) {
+      commentInputNode.setCustomValidity('Комментарий не должен содержать больше 140 символов. Сейчас символов: ' + commentInputNode.value.length);
+      addBorder(commentInputNode);
     } else {
-      uploadComment.setCustomValidity('');
-      removeBorder(uploadComment);
+      commentInputNode.setCustomValidity('');
+      removeBorder(commentInputNode);
     }
   };
 
-  uploadComment.addEventListener('input', commentValidityCheck);
-  uploadHashtags.addEventListener('input', hashtagsValidityCheck);
+  commentInputNode.addEventListener('input', commentValidityCheck);
+  hashtagsNode.addEventListener('input', hashtagsValidityCheck);
 
   // Отправка по сабмиту
 
-  uploadForm.addEventListener('submit', function (evt) {
+  uploadFormNode.addEventListener('submit', function (evt) {
     evt.preventDefault();
-    window.backend.uploadData(new FormData(uploadForm), onClickCloseForm, window.backend.onError);
+    window.backend.uploadData(new FormData(uploadFormNode), onClickCloseForm, window.backend.onError);
   });
 })();
